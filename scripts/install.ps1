@@ -72,6 +72,9 @@ $block = @'
         cacheMs: 4000
         notifyEnabled: true
         notifyMinHours: 12
+        spendGuardEnabled: true
+        spendGuardThreshold: 2
+        spendGuardMinHours: 6
 '@
 
 if (-not (Test-Path $patch)) {

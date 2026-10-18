@@ -1,0 +1,52 @@
+{
+  "name": "dsh-usage-board",
+  "version": "0.3.0",
+  "description": "DSH 插件：会话头部胶囊 + 设置页「用量与额度」仪表盘（全 provider token 统计 + HotDogAPI 面板金额/失败请求）",
+  "type": "module",
+  "main": "lib/index.js",
+  "license": "MIT",
+  "author": "zengnanhua228",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zengnanhua228/dsh-usage-board.git"
+  },
+  "homepage": "https://github.com/zengnanhua228/dsh-usage-board#readme",
+  "bugs": {
+    "url": "https://github.com/zengnanhua228/dsh-usage-board/issues"
+  },
+  "keywords": [
+    "deepseek-harness",
+    "dsh",
+    "plugin",
+    "usage",
+    "tokens",
+    "dashboard"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-conversation"
+      ]
+    }
+  },
+  "exports": {
+    ".": {
+      "default": "./lib/index.js"
+    },
+    "./client": "./lib/client.js",
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "scripts",
+    "cordis.patch.yml",
+    "README.md",
+    "LICENSE"
+  ]
+}

@@ -1,0 +1,7 @@
+# dsh-usage-board bundle patch
+#
+# 这个文件是包的 `dsh.bundle.patch` 层：只做一件事 —— 把插件这一行挂进 profile。
+# 不要在这里放模型配置覆盖（那样会让整条 patch 解析失败，插件显示"异常"）。
+- insert:
+    - id: usage-board
+      name: dsh-usage-board

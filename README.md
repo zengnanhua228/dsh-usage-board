@@ -152,13 +152,34 @@ powershell -ExecutionPolicy Bypass -File scripts\uninstall.ps1 -DryRun   # 只�
 - 不想承担这个风险：不配置金额层即可，Token 层零凭据
 - 建议面板使用**专用 API key**（如 `dsh-hotdog`）便于按 key 分账
 
+## 更新到新版本
+
+```powershell
+git pull
+# 然后双击 安装.cmd，重启 DSH
+```
+
+或重新下载 ZIP 解压后双击 `安装.cmd`（幂等：覆盖插件文件，配置行已存在则跳过）。
+
+---
+
 ## 开发
+
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\sync.ps1          # 把源码同步到本机 profile（开发者用）
 node --check lib/client.js; node --check lib/index.js; node --check lib/panel.js
 node -e "import('./lib/panel.js').then(m=>m.panelSnapshot())"  # 单独测金额层
 ```
+
+
+**推送（本机 github.com:443 被墙时）**：
+
+```powershell
+node scripts/push-via-api.mjs --branch main --message "your message"
+```
+
+它走 `api.github.com`（可达）用 REST API 建 blob/tree/commit 并更新分支，会自动接上远端最新提交；本地 git 提交只作快照。
 
 ## License
 

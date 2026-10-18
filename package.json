@@ -1,6 +1,6 @@
 {
   "name": "dsh-usage-board",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "DSH 插件：会话头部胶囊 + 设置页「用量与额度」仪表盘（全 provider token 统计 + HotDogAPI 面板金额/失败请求）",
   "type": "module",
   "main": "lib/index.js",

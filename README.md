@@ -45,21 +45,28 @@ powershell -ExecutionPolicy Bypass -File scripts\install.ps1
 
 ---
 
-## 可选：启用「金额 / 余额」
+## 可选：启用「金额 / 余额」（推荐一键登录）
 
 不配置也能用 Token 看板；配置后多出余额、实付金额、失败请求。
 
-**双击 `setup-token.cmd`（中文名 `配置面板Token.cmd`）**，按提示粘贴面板的 `refresh_token`：
+### 推荐：设置页一键登录（不用 F12）
 
-1. 浏览器登录 `https://sub.ihc.qzz.io`
-2. `F12` → **Application / 应用** → **Local Storage** → `https://sub.ihc.qzz.io`
-3. 复制 **`refresh_token`** 的值（`rt_` 开头）
-4. 粘贴进脚本（不回显、不落日志），脚本会先验证"能换票 + 能读余额"再写入
+1. 设置 → **用量与额度** → 「面板金额」卡片
+2. 输入**面板邮箱 + 密码**，点 **一键登录并启用金额**
+3. 立刻显示余额，金额区块自动刷新
 
-> 更省事的方式（需要 Node）：`node scripts/watch-panel-token.mjs`
-> 它会持续监听 Edge 的本地存储，你在浏览器登录面板后自动捕获并写入。
+> 面板没有启用任何 OAuth，但有标准邮箱密码登录接口。密码只在本次请求的内存里换一次 token，**不保存、不写日志**。
+> 想换账号/登录态失效时，点卡片里的「重新登录」；想清除本机登录态点「退出登录」。
 
-**注意**：每台电脑的面板登录态不同，**每台都要单独配置一次**。凭据存在 `~/.dsh/.credentials.yaml`，明文、仅本机用户可读。
+### 备选：命令行粘贴 refresh_token
+
+```powershell
+# 双击 setup-token.cmd，按提示粘贴：浏览器登录面板 → F12 → Application
+# → Local Storage → https://sub.ihc.qzz.io → 复制 refresh_token
+```
+
+> 每台电脑的面板登录态不同，**每台都要单独登录一次**。凭据存在 `~/.dsh/.credentials.yaml`，明文、仅本机用户可读。
+> 更省事的高级方式（需要 Node）：`node scripts/watch-panel-token.mjs` 监听 Edge 存储自动捕获。
 
 ---
 
@@ -93,7 +100,7 @@ powershell -ExecutionPolicy Bypass -File scripts\install.ps1
 | 区间 | 今日 / 近 7 天 / 近 30 天 / 全部 |
 | 按模型 | 会话数、缓存命中率、token；**点行下钻会话**（标题、命中率、复制完整 ID） |
 | 区间汇总 | 总 token + 未缓存输入 / 输出 / 缓存读 / 命中率 |
-| 面板金额 | 余额、今日实付、累计实付、`dsh-hotdog` 今日、倍率、累计充值 |
+| 面板金额 | 余额、今日实付、累计实付、`dsh-hotdog` 今日、倍率、累计充值；**一键登录/重新登录/退出登录** |
 | 趋势 | 近 14 天 Token 柱状图 + 近 14 天花费柱状图 |
 | 失败请求 | 近 7 天次数、状态码分布、最近失败明细 |
 
@@ -140,7 +147,7 @@ powershell -ExecutionPolicy Bypass -File scripts\uninstall.ps1 -DryRun   # 只�
 | 重启后 DSH 起不来 | 回滚 `~\.dsh\profiles\desktop\cordis.patch.yml.bak-install-*`；或删掉整个 `cordis.patch.yml`（DSH 会用默认配置启动） |
 | 配置行又没了 | **DSH 设置里点"恢复默认/重置"会整份重写 profile 补丁**，重跑 `安装.cmd` 再重启即可 |
 | 金额显示"更新中…" | 正常：面板接口偶尔慢，插件会保留上次成功数据并重试 |
-| 金额一直"取数失败" | `配置面板Token.cmd` 换成新的 token（面板登录态会过期/轮换） |
+| 金额一直"取数失败" | 点「重新登录」重输面板账号密码（登录态会过期/轮换） |
 | 通知没弹 | 检查 `notifyEnabled`、Windows 通知权限；DSH 不运行时不会检查余额 |
 
 ---

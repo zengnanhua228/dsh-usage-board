@@ -59,6 +59,44 @@ function TestToken([string]$rt) {
     return [pscustomobject]@{ ok = $true; error = $null; access = $access; next = $next; balance = $balance }
 }
 
+# 写入凭据（找到 ref 就替换，否则插到 HOTDOG_API_KEY 后面；没有 refs 段就补一个）
+function Save-Token([string]$value) {
+    $stamp = Get-Date -Format 'yyyyMMdd-HHmmss'
+    if (Test-Path $cred) {
+        Copy-Item $cred "$cred.bak-paneltoken-$stamp" -Force
+        $lines = [IO.File]::ReadAllLines($cred)
+        $found = $false
+        for ($i = 0; $i -lt $lines.Count; $i++) {
+            if ($lines[$i] -match "^\s*$ref`:") {
+                $indent = ($lines[$i] -replace '^(\s*).*$', '$1')
+                $lines[$i] = $indent + $ref + ': "' + $value + '"'
+                $found = $true
+                break
+            }
+        }
+        if (-not $found) {
+            $list = New-Object System.Collections.Generic.List[string]
+            $inserted = $false
+            foreach ($l in $lines) {
+                $list.Add($l)
+                if (-not $inserted -and $l -match '^(\s+)HOTDOG_API_KEY:') {
+                    $list.Add($matches[1] + $ref + ': "' + $value + '"'); $inserted = $true
+                }
+            }
+            if (-not $inserted) {
+                $list.Add('refs:')
+                $list.Add('  ' + $ref + ': "' + $value + '"')
+            }
+            $lines = $list.ToArray()
+        }
+        [IO.File]::WriteAllLines($cred, $lines, (New-Object Text.UTF8Encoding($false)))
+    } else {
+        $content = "version: 1`r`nrefs:`r`n  $ref`: `"$value`"`r`n"
+        [IO.File]::WriteAllText($cred, $content, (New-Object Text.UTF8Encoding($false)))
+    }
+    return "$cred.bak-paneltoken-$stamp"
+}
+
 # ── -Check ─────────────────────────────────────────────────────────
 if ($Check) {
     $stored = ReadStored
@@ -67,6 +105,11 @@ if ($Check) {
     $r = TestToken $stored
     if (-not $r.ok) { Bad "❌ 已失效：$($r.error)（重新运行本脚本登录面板后粘贴新的）"; exit 2 }
     Ok "✅ 可用$(if ($r.balance -ne $null) { "，面板余额 `$$($r.balance)" })"
+    # 关键：换票会轮换 refresh_token，必须写回，否则下一次就失效
+    if ($r.next -and $r.next -ne $stored) {
+        $null = Save-Token $r.next
+        Ok '上游轮换了 token，已自动写回新值'
+    }
     exit 0
 }
 
@@ -101,43 +144,9 @@ if ($toSave -ne $new) { Warn '上游发生了 token 轮换，将保存新的那�
 if ($DryRun) { Warn '-- DryRun：只验证，不写入 --'; exit 0 }
 
 # ── 写入凭据 ───────────────────────────────────────────────────────
-$stamp = Get-Date -Format 'yyyyMMdd-HHmmss'
-if (Test-Path $cred) {
-    Copy-Item $cred "$cred.bak-paneltoken-$stamp" -Force
-    $lines = [IO.File]::ReadAllLines($cred)
-    $found = $false
-    for ($i = 0; $i -lt $lines.Count; $i++) {
-        if ($lines[$i] -match "^\s*$ref`:") {
-            $indent = ($lines[$i] -replace '^(\s*).*$', '$1')
-            $lines[$i] = $indent + $ref + ': "' + $toSave + '"'
-            $found = $true
-            break
-        }
-    }
-    if (-not $found) {
-        $list = New-Object System.Collections.Generic.List[string]
-        $inserted = $false
-        foreach ($l in $lines) {
-            $list.Add($l)
-            if (-not $inserted -and $l -match '^(\s+)HOTDOG_API_KEY:') {
-                $list.Add($matches[1] + $ref + ': "' + $toSave + '"'); $inserted = $true
-            }
-        }
-        if (-not $inserted) {
-            # 没有 refs 段就补一个
-            $list.Add('refs:')
-            $list.Add('  ' + $ref + ': "' + $toSave + '"')
-        }
-        $lines = $list.ToArray()
-    }
-    [IO.File]::WriteAllLines($cred, $lines, (New-Object Text.UTF8Encoding($false)))
-} else {
-    $content = "version: 1`r`nrefs:`r`n  $ref`: `"$toSave`"`r`n"
-    [IO.File]::WriteAllText($cred, $content, (New-Object Text.UTF8Encoding($false)))
-}
-
+$backup = Save-Token $toSave
 $verify = ReadStored
-if ($verify -ne $toSave) { Bad "写入后回读不一致！从备份恢复：$cred.bak-paneltoken-$stamp"; exit 3 }
+if ($verify -ne $toSave) { Bad "写入后回读不一致！从备份恢复：$backup"; exit 3 }
 Ok "✅ 已写入凭据：$(Mask $verify)"
 Info ''
 Ok '完成。重启 DSH 后，看板「面板金额」区块会自动出现（未重启也会在 60 秒内轮询到）。'

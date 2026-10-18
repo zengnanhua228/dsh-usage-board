@@ -22,7 +22,7 @@ git clone https://github.com/zengnanhua228/dsh-usage-board.git
 
 > 前提：那台电脑已安装 DSH，并且**至少启动过一次**（首次启动才会生成 `~/.dsh/profiles`）。
 
-### 2. 双击 `安装.cmd`
+### 2. 双击 `install.cmd`（中文名 `安装.cmd` 是同一个脚本）
 
 它会：
 1. 把插件复制到 `%USERPROFILE%\.dsh\profiles\node_modules\dsh-usage-board`
@@ -49,7 +49,7 @@ powershell -ExecutionPolicy Bypass -File scripts\install.ps1
 
 不配置也能用 Token 看板；配置后多出余额、实付金额、失败请求。
 
-**双击 `配置面板Token.cmd`**，按提示粘贴面板的 `refresh_token`：
+**双击 `setup-token.cmd`（中文名 `配置面板Token.cmd`）**，按提示粘贴面板的 `refresh_token`：
 
 1. 浏览器登录 `https://sub.ihc.qzz.io`
 2. `F12` → **Application / 应用** → **Local Storage** → `https://sub.ihc.qzz.io`
@@ -123,7 +123,7 @@ powershell -ExecutionPolicy Bypass -File scripts\install.ps1
 
 ## 卸载
 
-双击 **`卸载.cmd`**：删除插件目录 + 从配置里移除插件行（带备份）。
+双击 **`uninstall.cmd`**（中文名 `卸载.cmd`）：删除插件目录 + 从配置里移除插件行（带备份）。
 **不会**删除你的面板 token / API key。
 
 ```powershell
@@ -136,7 +136,7 @@ powershell -ExecutionPolicy Bypass -File scripts\uninstall.ps1 -DryRun   # 只�
 
 | 现象 | 处理 |
 |---|---|
-| 设置页没有「用量与额度」 | 双击 `检查安装.cmd` 看四项检查；确认已**完全重启** DSH（托盘退出，不是关窗口） |
+| 设置页没有「用量与额度」 | 双击 `verify.cmd`（中文名 `检查安装.cmd`） 看四项检查；确认已**完全重启** DSH（托盘退出，不是关窗口） |
 | 重启后 DSH 起不来 | 回滚 `~\.dsh\profiles\desktop\cordis.patch.yml.bak-install-*`；或删掉整个 `cordis.patch.yml`（DSH 会用默认配置启动） |
 | 配置行又没了 | **DSH 设置里点"恢复默认/重置"会整份重写 profile 补丁**，重跑 `安装.cmd` 再重启即可 |
 | 金额显示"更新中…" | 正常：面板接口偶尔慢，插件会保留上次成功数据并重试 |
@@ -156,10 +156,10 @@ powershell -ExecutionPolicy Bypass -File scripts\uninstall.ps1 -DryRun   # 只�
 
 ```powershell
 git pull
-# 然后双击 安装.cmd，重启 DSH
+# 然后双击 install.cmd，重启 DSH
 ```
 
-或重新下载 ZIP 解压后双击 `安装.cmd`（幂等：覆盖插件文件，配置行已存在则跳过）。
+或重新下载 ZIP 解压后双击 `install.cmd`（幂等：覆盖插件文件，配置行已存在则跳过）。
 
 ---
 
